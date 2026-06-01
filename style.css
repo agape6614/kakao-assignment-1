@@ -28,9 +28,46 @@ body {
 header h1 {
     color: #672be0; /* 메인 컬러 */
     font-size: 1.8rem;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     text-align: center;
     font-weight: 700;
+}
+
+/* 일간 뷰 날짜 네비게이션 */
+.date-navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.date-navigation button {
+    background: none;
+    border: none;
+    color: #672be0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.date-navigation button:hover {
+    background-color: #f0e6ff; /* 연한 메인 컬러 배경 */
+}
+
+.date-navigation button:active {
+    transform: scale(0.95);
+}
+
+#current-date-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    min-width: 140px;
+    text-align: center;
 }
 
 /* 텍스트 입력 영역 */
@@ -97,7 +134,7 @@ header h1 {
     border: none;
     font-size: 1rem;
     font-weight: 600;
-    color: #a0a0a0; /* 비활성화 상태 색상 */
+    color: #a0a0a0; 
     cursor: pointer;
     padding: 8px 4px;
     position: relative;
@@ -108,12 +145,10 @@ header h1 {
     color: #555;
 }
 
-/* 현재 선택된 필터 탭 (Active) */
 .filter-btn.active {
     color: #672be0;
 }
 
-/* 선택된 필터 탭 하단에 포인트 밑줄 추가 */
 .filter-btn.active::after {
     content: '';
     position: absolute;
@@ -155,7 +190,6 @@ header h1 {
     transition: color 0.2s ease;
 }
 
-/* 완료된 상태 (취소선 처리) */
 .todo-item.completed {
     background-color: #fafafa;
     border-color: #f0f0f0;
@@ -183,7 +217,6 @@ header h1 {
     transition: all 0.2s;
 }
 
-/* 각 버튼 호버 색상 */
 .btn-complete { color: #20c997; }
 .btn-complete:hover { background-color: #20c997; color: white; border-color: #20c997; }
 
