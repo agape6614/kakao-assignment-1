@@ -10,9 +10,39 @@
 .header h1 {
   color: #672be0;
   font-size: 1.8rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   text-align: center;
   font-weight: 700;
+}
+
+/* ⭐️ 날짜 네비게이션 스타일 추가 */
+.date-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.date-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05rem;
+}
+
+.date-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #a0a0a0;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0.2rem 0.5rem;
+}
+
+.date-btn:hover {
+  color: #672be0;
 }
 
 .input-section {
@@ -58,7 +88,6 @@
   padding-left: 0.5rem;
 }
 
-/* ⭐️ 필터 탭 스타일 추가 */
 .filter-tabs {
   display: flex;
   gap: 1.5rem;
@@ -76,7 +105,7 @@
   cursor: pointer;
   font-weight: 600;
   padding: 0.2rem 0;
-  position: relative; /* 활성화 밑줄을 위한 포지션 기준점 */
+  position: relative;
   transition: color 0.2s;
 }
 
@@ -84,7 +113,6 @@
   color: #672be0;
 }
 
-/* 활성화된 탭 스타일: 메인 컬러 적용 및 하단 밑줄 생성 */
 .filter-btn.active {
   color: #672be0;
 }
@@ -92,7 +120,7 @@
 .filter-btn.active::after {
   content: '';
   position: absolute;
-  bottom: -0.65rem; /* border-bottom 선에 겹치도록 조정 */
+  bottom: -0.65rem; 
   left: 0;
   width: 100%;
   height: 3px;
@@ -106,6 +134,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+}
+
+.empty-message {
+  text-align: center;
+  color: #a0a0a0;
+  font-size: 0.95rem;
+  padding: 1rem 0;
 }
 
 .todo-item {

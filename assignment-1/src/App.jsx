@@ -1,18 +1,43 @@
 import { useState } from 'react';
 import './App.css';
 
+// 날짜를 'YYYY-MM-DD' 형식의 문자열로 변환하는 헬퍼 함수
+const getFormattedDate = (dateObj) => {
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 function App() {
-  // 상태 관리: Todo 목록, 새 Todo 입력값, 에러 메시지
+  // 기본 상태 관리
   const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // 수정 관련 상태 관리
+  // 인라인 수정 관련 상태
   const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
 
-  // ⭐️ 탭 필터 상태 관리: 'all'(전체), 'active'(진행 중), 'completed'(완료)
+  // 탭 필터 상태 관리 ('all', 'active', 'completed')
   const [filter, setFilter] = useState('all');
+
+  // ⭐️ 날짜 상태 관리 (기본값: 오늘 날짜)
+  const [selectedDate, setSelectedDate] = useState(getFormattedDate(new Date()));
+
+  // ⭐️ 이전 날짜로 이동 함수
+  const handlePrevDate = () => {
+    const current = new Date(selectedDate);
+    current.setDate(current.getDate() - 1);
+    setSelectedDate(getFormattedDate(current));
+  };
+
+  // ⭐️ 다음 날짜로 이동 함수
+  const handleNextDate = () => {
+    const current = new Date(selectedDate);
+    current.setDate(current.getDate() + 1);
+    setSelectedDate(getFormattedDate(current));
+  };
 
   // Todo 추가 함수
   const handleAddTodo = (e) => {
@@ -23,10 +48,12 @@ function App() {
       return;
     }
 
+    // ⭐️ 새로운 Todo에 현재 선택된 날짜(selectedDate) 정보 추가
     const newTodo = {
       id: Date.now(),
       text: inputValue,
       isCompleted: false,
+      date: selectedDate, 
     };
 
     setTodos([...todos, newTodo]);
@@ -75,17 +102,28 @@ function App() {
     setEditValue('');
   };
 
-  // ⭐️ 렌더링할 목록 계산: 현재 선택된 탭(filter) 상태에 따라 배열을 거릅니다.
+  // ⭐️ 렌더링할 목록 계산 (이중 필터링: 1. 날짜 조건 -> 2. 상태 조건)
   const filteredTodos = todos.filter((todo) => {
-    if (filter === 'active') return !todo.isCompleted; // 진행 중인 항목만
-    if (filter === 'completed') return todo.isCompleted; // 완료된 항목만
-    return true; // 'all' 일 때는 조건 없이 모두 반환
+    // 1차 필터링: 현재 선택된 날짜와 Todo의 날짜가 일치하는지 확인
+    if (todo.date !== selectedDate) return false;
+
+    // 2차 필터링: 전체/진행/완료 탭 상태 확인
+    if (filter === 'active') return !todo.isCompleted;
+    if (filter === 'completed') return todo.isCompleted;
+    return true; 
   });
 
   return (
     <div className="app-container">
       <header className="header">
         <h1>Todo List</h1>
+        
+        {/* ⭐️ 날짜 이동 네비게이션 UI */}
+        <div className="date-navigation">
+          <button className="date-btn" onClick={handlePrevDate}>&lt;</button>
+          <span className="date-text">{selectedDate}</span>
+          <button className="date-btn" onClick={handleNextDate}>&gt;</button>
+        </div>
       </header>
 
       <main>
@@ -95,7 +133,7 @@ function App() {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="새로운 할 일을 입력하세요..."
+            placeholder={`${selectedDate}의 할 일을 입력하세요...`}
             className="todo-input"
           />
           <button type="submit" className="add-button">추가</button>
@@ -103,7 +141,7 @@ function App() {
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {/* ⭐️ 필터링 탭 영역 */}
+        {/* 필터링 탭 영역 */}
         <div className="filter-tabs">
           <button
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -125,42 +163,46 @@ function App() {
           </button>
         </div>
 
-        {/* Todo 목록 렌더링 (원본 todos가 아닌 filteredTodos 배열을 순회) */}
+        {/* Todo 목록 렌더링 (이중 필터링된 배열 사용) */}
         <ul className="todo-list">
-          {filteredTodos.map((todo) => (
-            <li key={todo.id} className={`todo-item ${todo.isCompleted ? 'completed' : ''}`}>
-              
-              {editingId === todo.id ? (
-                <div className="edit-mode">
-                  <input
-                    type="text"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    className="edit-input"
-                    autoFocus
-                  />
-                  <div className="action-buttons">
-                    <button onClick={() => handleSaveEdit(todo.id)} className="save-btn">확인</button>
-                    <button onClick={handleCancelEdit} className="cancel-btn">취소</button>
+          {/* 목록이 비어있을 때 안내 메시지 추가 */}
+          {filteredTodos.length === 0 ? (
+            <p className="empty-message">이 날짜에는 할 일이 없습니다.</p>
+          ) : (
+            filteredTodos.map((todo) => (
+              <li key={todo.id} className={`todo-item ${todo.isCompleted ? 'completed' : ''}`}>
+                
+                {editingId === todo.id ? (
+                  <div className="edit-mode">
+                    <input
+                      type="text"
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      className="edit-input"
+                      autoFocus
+                    />
+                    <div className="action-buttons">
+                      <button onClick={() => handleSaveEdit(todo.id)} className="save-btn">확인</button>
+                      <button onClick={handleCancelEdit} className="cancel-btn">취소</button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="view-mode">
-                  <span
-                    className="todo-text"
-                    onClick={() => handleToggleComplete(todo.id)}
-                  >
-                    {todo.text}
-                  </span>
-                  <div className="action-buttons">
-                    <button onClick={() => handleStartEdit(todo.id, todo.text)} className="edit-btn">수정</button>
-                    <button onClick={() => handleDeleteTodo(todo.id)} className="delete-btn">삭제</button>
+                ) : (
+                  <div className="view-mode">
+                    <span
+                      className="todo-text"
+                      onClick={() => handleToggleComplete(todo.id)}
+                    >
+                      {todo.text}
+                    </span>
+                    <div className="action-buttons">
+                      <button onClick={() => handleStartEdit(todo.id, todo.text)} className="edit-btn">수정</button>
+                      <button onClick={() => handleDeleteTodo(todo.id)} className="delete-btn">삭제</button>
+                    </div>
                   </div>
-                </div>
-              )}
-
-            </li>
-          ))}
+                )}
+              </li>
+            ))
+          )}
         </ul>
       </main>
     </div>
