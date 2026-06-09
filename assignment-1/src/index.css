@@ -10,6 +10,7 @@ body {
   color: #333;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* 화면이 길어질 수 있으므로 상단 정렬 후 여백 부여 */
+  padding: 3rem 1rem;
   min-height: 100vh;
 }

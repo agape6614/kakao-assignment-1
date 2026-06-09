@@ -51,12 +51,12 @@ function App() {
     setSelectedDate(getFormattedDate(current));
   };
 
-  // 날짜 선택기(Date Picker)에서 직접 날짜를 바꿨을 때의 함수
+  // 날짜 선택기(Date Picker) 변경
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
   };
 
-  // ⭐️ 오늘 날짜로 즉시 이동하는 함수
+  // 오늘 날짜로 즉시 이동
   const handleGoToToday = () => {
     setSelectedDate(getFormattedDate(new Date()));
   };
@@ -74,7 +74,7 @@ function App() {
       id: Date.now(),
       text: inputValue,
       isCompleted: false,
-      date: selectedDate, // 현재 화면에 선택된 날짜 저장
+      date: selectedDate,
     };
 
     setTodos([...todos, newTodo]);
@@ -82,79 +82,75 @@ function App() {
     setErrorMessage(''); 
   };
 
-  // Todo 삭제 함수
+  // Todo 삭제, 완료 토글, 수정 로직
   const handleDeleteTodo = (id) => {
-    const filteredTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(filteredTodos);
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
-  // Todo 완료 상태 토글 함수
   const handleToggleComplete = (id) => {
-    const updatedTodos = todos.map((todo) =>
+    setTodos(todos.map((todo) =>
       todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
-    );
-    setTodos(updatedTodos);
+    ));
   };
 
-  // 인라인 수정 모드 시작
   const handleStartEdit = (id, currentText) => {
     setEditingId(id);
     setEditValue(currentText);
   };
 
-  // 인라인 수정 내용 저장
   const handleSaveEdit = (id) => {
     if (editValue.trim() === '') {
       alert('수정할 내용을 입력하거나 취소를 눌러주세요.');
       return;
     }
-
-    const updatedTodos = todos.map((todo) =>
+    setTodos(todos.map((todo) =>
       todo.id === id ? { ...todo, text: editValue } : todo
-    );
-    setTodos(updatedTodos);
+    ));
     setEditingId(null); 
     setEditValue('');
   };
 
-  // 인라인 수정 취소
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditValue('');
   };
 
-  // 렌더링할 목록 계산 (이중 필터링: 1. 날짜 조건 -> 2. 상태 조건)
+  // ⭐️ [왼쪽 메인 영역] 렌더링할 목록 (날짜 조건 -> 상태 조건)
   const filteredTodos = todos.filter((todo) => {
     if (todo.date !== selectedDate) return false;
-
     if (filter === 'active') return !todo.isCompleted;
     if (filter === 'completed') return todo.isCompleted;
     return true; 
   });
 
-  return (
-    <div className="app-container">
-      <header className="header">
-        <h1>Todo List</h1>
-        
-        {/* 네비게이션 UI: Date Picker와 오늘 버튼 추가 */}
-        <div className="date-navigation">
-          <button className="date-btn" onClick={handlePrevDate}>&lt;</button>
-          <input 
-            type="date" 
-            className="date-picker-input" 
-            value={selectedDate} 
-            onChange={handleDateChange} 
-            required 
-          />
-          <button className="date-btn" onClick={handleNextDate}>&gt;</button>
-          {/* ⭐️ 오늘 버튼 UI */}
-          <button className="today-btn" onClick={handleGoToToday}>오늘</button>
-        </div>
-      </header>
+  // ⭐️ [오른쪽 사이드바 영역] 진행 중인 다가오는 일정 필터링
+  // 1. 완료 안됨 (!todo.isCompleted)
+  // 2. 과거 제외, 오늘부터 미래 (todo.date >= todayString)
+  const todayString = getFormattedDate(new Date());
+  const upcomingTodos = todos
+    .filter((todo) => !todo.isCompleted && todo.date >= todayString)
+    .sort((a, b) => a.date.localeCompare(b.date)); // 날짜가 가까운 순서대로 오름차순 정렬
 
-      <main>
-        {/* Todo 입력 폼 */}
+  return (
+    <div className="app-wrapper">
+      {/* 왼쪽 메인 화면 (기존 Daily View) */}
+      <main className="main-content">
+        <header className="header">
+          <h1>Todo List</h1>
+          <div className="date-navigation">
+            <button className="date-btn" onClick={handlePrevDate}>&lt;</button>
+            <input 
+              type="date" 
+              className="date-picker-input" 
+              value={selectedDate} 
+              onChange={handleDateChange} 
+              required 
+            />
+            <button className="date-btn" onClick={handleNextDate}>&gt;</button>
+            <button className="today-btn" onClick={handleGoToToday}>오늘</button>
+          </div>
+        </header>
+
         <form className="input-section" onSubmit={handleAddTodo}>
           <input
             type="text"
@@ -168,45 +164,21 @@ function App() {
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {/* 필터링 탭 영역 */}
         <div className="filter-tabs">
-          <button
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            전체
-          </button>
-          <button
-            className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
-            onClick={() => setFilter('active')}
-          >
-            진행 중
-          </button>
-          <button
-            className={`filter-btn ${filter === 'completed' ? 'active' : ''}`}
-            onClick={() => setFilter('completed')}
-          >
-            완료
-          </button>
+          <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>전체</button>
+          <button className={`filter-btn ${filter === 'active' ? 'active' : ''}`} onClick={() => setFilter('active')}>진행 중</button>
+          <button className={`filter-btn ${filter === 'completed' ? 'active' : ''}`} onClick={() => setFilter('completed')}>완료</button>
         </div>
 
-        {/* Todo 목록 렌더링 */}
         <ul className="todo-list">
           {filteredTodos.length === 0 ? (
             <p className="empty-message">이 날짜에는 할 일이 없습니다.</p>
           ) : (
             filteredTodos.map((todo) => (
               <li key={todo.id} className={`todo-item ${todo.isCompleted ? 'completed' : ''}`}>
-                
                 {editingId === todo.id ? (
                   <div className="edit-mode">
-                    <input
-                      type="text"
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      className="edit-input"
-                      autoFocus
-                    />
+                    <input type="text" value={editValue} onChange={(e) => setEditValue(e.target.value)} className="edit-input" autoFocus />
                     <div className="action-buttons">
                       <button onClick={() => handleSaveEdit(todo.id)} className="save-btn">확인</button>
                       <button onClick={handleCancelEdit} className="cancel-btn">취소</button>
@@ -214,12 +186,7 @@ function App() {
                   </div>
                 ) : (
                   <div className="view-mode">
-                    <span
-                      className="todo-text"
-                      onClick={() => handleToggleComplete(todo.id)}
-                    >
-                      {todo.text}
-                    </span>
+                    <span className="todo-text" onClick={() => handleToggleComplete(todo.id)}>{todo.text}</span>
                     <div className="action-buttons">
                       <button onClick={() => handleStartEdit(todo.id, todo.text)} className="edit-btn">수정</button>
                       <button onClick={() => handleDeleteTodo(todo.id)} className="delete-btn">삭제</button>
@@ -231,6 +198,23 @@ function App() {
           )}
         </ul>
       </main>
+
+      {/* ⭐️ 오른쪽 사이드바 (다가오는 일정) */}
+      <aside className="sidebar-content">
+        <h2>다가오는 일정</h2>
+        <ul className="upcoming-list">
+          {upcomingTodos.length === 0 ? (
+            <p className="empty-message">예정된 진행 중 일정이 없습니다.</p>
+          ) : (
+            upcomingTodos.map((todo) => (
+              <li key={todo.id} className="upcoming-item">
+                <span className="upcoming-date">{todo.date}</span>
+                <span className="upcoming-text">{todo.text}</span>
+              </li>
+            ))
+          )}
+        </ul>
+      </aside>
     </div>
   );
 }
