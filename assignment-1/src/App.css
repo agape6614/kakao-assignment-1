@@ -19,15 +19,31 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.5rem; /* 버튼 간격을 살짝 조정 */
   margin-bottom: 1.5rem;
   color: #333;
 }
 
-.date-text {
+.date-picker-input {
+  font-family: inherit;
   font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 0.05rem;
+  color: #333;
+  border: 1px solid transparent; 
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.date-picker-input:hover,
+.date-picker-input:focus {
+  border-color: #672be0;
+  background-color: #f9f9f9;
+  color: #672be0;
 }
 
 .date-btn {
@@ -42,6 +58,25 @@
 
 .date-btn:hover {
   color: #672be0;
+}
+
+/* ⭐️ 오늘 버튼 커스텀 스타일링 */
+.today-btn {
+  background-color: #f4f5f7;
+  color: #555;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.today-btn:hover {
+  background-color: #e0e0e0;
+  color: #672be0; /* 호버 시 메인 컬러 강조 */
 }
 
 .input-section {

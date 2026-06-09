@@ -10,13 +10,13 @@ const getFormattedDate = (dateObj) => {
 };
 
 function App() {
-  // ⭐️ 상태 관리: 앱 시작 시 로컬스토리지에서 데이터를 불러와 초기화 (Lazy initialization)
+  // 로컬스토리지 연동 초기화
   const [todos, setTodos] = useState(() => {
     const savedTodos = localStorage.getItem('todos');
     if (savedTodos) {
       return JSON.parse(savedTodos);
     }
-    return []; // 저장된 데이터가 없으면 빈 배열 반환
+    return []; 
   });
 
   const [inputValue, setInputValue] = useState('');
@@ -32,7 +32,7 @@ function App() {
   // 날짜 상태 관리 (기본값: 오늘 날짜)
   const [selectedDate, setSelectedDate] = useState(getFormattedDate(new Date()));
 
-  // ⭐️ 로컬스토리지 자동 저장: todos 배열이 변경될 때마다 실행됨
+  // todos 배열 변경 시 로컬스토리지 자동 저장
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
@@ -51,6 +51,16 @@ function App() {
     setSelectedDate(getFormattedDate(current));
   };
 
+  // 날짜 선택기(Date Picker)에서 직접 날짜를 바꿨을 때의 함수
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
+
+  // ⭐️ 오늘 날짜로 즉시 이동하는 함수
+  const handleGoToToday = () => {
+    setSelectedDate(getFormattedDate(new Date()));
+  };
+
   // Todo 추가 함수
   const handleAddTodo = (e) => {
     e.preventDefault();
@@ -64,7 +74,7 @@ function App() {
       id: Date.now(),
       text: inputValue,
       isCompleted: false,
-      date: selectedDate, // 현재 선택된 날짜 저장
+      date: selectedDate, // 현재 화면에 선택된 날짜 저장
     };
 
     setTodos([...todos, newTodo]);
@@ -127,11 +137,19 @@ function App() {
       <header className="header">
         <h1>Todo List</h1>
         
-        {/* 날짜 이동 네비게이션 UI */}
+        {/* 네비게이션 UI: Date Picker와 오늘 버튼 추가 */}
         <div className="date-navigation">
           <button className="date-btn" onClick={handlePrevDate}>&lt;</button>
-          <span className="date-text">{selectedDate}</span>
+          <input 
+            type="date" 
+            className="date-picker-input" 
+            value={selectedDate} 
+            onChange={handleDateChange} 
+            required 
+          />
           <button className="date-btn" onClick={handleNextDate}>&gt;</button>
+          {/* ⭐️ 오늘 버튼 UI */}
+          <button className="today-btn" onClick={handleGoToToday}>오늘</button>
         </div>
       </header>
 
