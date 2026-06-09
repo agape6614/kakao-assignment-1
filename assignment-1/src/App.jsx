@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 // 날짜를 'YYYY-MM-DD' 형식의 문자열로 변환하는 헬퍼 함수
@@ -10,8 +10,15 @@ const getFormattedDate = (dateObj) => {
 };
 
 function App() {
-  // 기본 상태 관리
-  const [todos, setTodos] = useState([]);
+  // ⭐️ 상태 관리: 앱 시작 시 로컬스토리지에서 데이터를 불러와 초기화 (Lazy initialization)
+  const [todos, setTodos] = useState(() => {
+    const savedTodos = localStorage.getItem('todos');
+    if (savedTodos) {
+      return JSON.parse(savedTodos);
+    }
+    return []; // 저장된 데이터가 없으면 빈 배열 반환
+  });
+
   const [inputValue, setInputValue] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -22,17 +29,22 @@ function App() {
   // 탭 필터 상태 관리 ('all', 'active', 'completed')
   const [filter, setFilter] = useState('all');
 
-  // ⭐️ 날짜 상태 관리 (기본값: 오늘 날짜)
+  // 날짜 상태 관리 (기본값: 오늘 날짜)
   const [selectedDate, setSelectedDate] = useState(getFormattedDate(new Date()));
 
-  // ⭐️ 이전 날짜로 이동 함수
+  // ⭐️ 로컬스토리지 자동 저장: todos 배열이 변경될 때마다 실행됨
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
+
+  // 이전 날짜로 이동 함수
   const handlePrevDate = () => {
     const current = new Date(selectedDate);
     current.setDate(current.getDate() - 1);
     setSelectedDate(getFormattedDate(current));
   };
 
-  // ⭐️ 다음 날짜로 이동 함수
+  // 다음 날짜로 이동 함수
   const handleNextDate = () => {
     const current = new Date(selectedDate);
     current.setDate(current.getDate() + 1);
@@ -48,12 +60,11 @@ function App() {
       return;
     }
 
-    // ⭐️ 새로운 Todo에 현재 선택된 날짜(selectedDate) 정보 추가
     const newTodo = {
       id: Date.now(),
       text: inputValue,
       isCompleted: false,
-      date: selectedDate, 
+      date: selectedDate, // 현재 선택된 날짜 저장
     };
 
     setTodos([...todos, newTodo]);
@@ -102,12 +113,10 @@ function App() {
     setEditValue('');
   };
 
-  // ⭐️ 렌더링할 목록 계산 (이중 필터링: 1. 날짜 조건 -> 2. 상태 조건)
+  // 렌더링할 목록 계산 (이중 필터링: 1. 날짜 조건 -> 2. 상태 조건)
   const filteredTodos = todos.filter((todo) => {
-    // 1차 필터링: 현재 선택된 날짜와 Todo의 날짜가 일치하는지 확인
     if (todo.date !== selectedDate) return false;
 
-    // 2차 필터링: 전체/진행/완료 탭 상태 확인
     if (filter === 'active') return !todo.isCompleted;
     if (filter === 'completed') return todo.isCompleted;
     return true; 
@@ -118,7 +127,7 @@ function App() {
       <header className="header">
         <h1>Todo List</h1>
         
-        {/* ⭐️ 날짜 이동 네비게이션 UI */}
+        {/* 날짜 이동 네비게이션 UI */}
         <div className="date-navigation">
           <button className="date-btn" onClick={handlePrevDate}>&lt;</button>
           <span className="date-text">{selectedDate}</span>
@@ -163,9 +172,8 @@ function App() {
           </button>
         </div>
 
-        {/* Todo 목록 렌더링 (이중 필터링된 배열 사용) */}
+        {/* Todo 목록 렌더링 */}
         <ul className="todo-list">
-          {/* 목록이 비어있을 때 안내 메시지 추가 */}
           {filteredTodos.length === 0 ? (
             <p className="empty-message">이 날짜에는 할 일이 없습니다.</p>
           ) : (
