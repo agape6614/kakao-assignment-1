@@ -1,0 +1,152 @@
+.app-container {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+}
+
+.header h1 {
+  color: #672be0; /* 메인 컬러 적용 */
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.input-section {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.todo-input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+/* 입력창 클릭 시 메인 컬러 테두리 강조 */
+.todo-input:focus {
+  border-color: #672be0;
+}
+
+.add-button {
+  background-color: #672be0; /* 메인 컬러 적용 */
+  color: white;
+  border: none;
+  padding: 0 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 600;
+}
+
+.add-button:hover {
+  background-color: #551fd0; /* 호버 시 약간 어두운 메인 컬러 */
+}
+
+.error-message {
+  color: #ff4d4f;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.todo-item {
+  background-color: #fcfcfc;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.todo-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.view-mode, .edit-mode {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.todo-text {
+  flex: 1;
+  font-size: 1rem;
+  cursor: pointer;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+
+/* 완료된 상태일 때 텍스트 시각적 처리 */
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: #a0a0a0;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #672be0; /* 수정창은 메인 컬러 테두리 사용 */
+  border-radius: 4px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 개별 액션 버튼들 깔끔한 파스텔톤 처리 */
+.action-buttons button {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.edit-btn {
+  color: #1890ff;
+  background-color: #e6f7ff;
+}
+.edit-btn:hover { background-color: #bae0ff; }
+
+.delete-btn {
+  color: #ff4d4f;
+  background-color: #fff1f0;
+}
+.delete-btn:hover { background-color: #ffccc7; }
+
+.save-btn {
+  color: #52c41a;
+  background-color: #f6ffed;
+}
+.save-btn:hover { background-color: #d9f7be; }
+
+.cancel-btn {
+  color: #595959;
+  background-color: #f5f5f5;
+}
+.cancel-btn:hover { background-color: #d9d9d9; }
