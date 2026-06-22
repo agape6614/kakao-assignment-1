@@ -62,9 +62,9 @@ app = FastAPI(title="Minimal Todo API", description="#672be0 컬러 테마의 �
 # React 프론트엔드(보통 localhost:5173 등)에서 백엔드 API에 접근할 수 있도록 허용
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # 실제 배포 시에는 React 앱의 URL만 명시하는 것이 안전해
+    allow_origins=["*"], 
     allow_credentials=True,
-    allow_methods=["*"], # GET, POST, PUT, DELETE 등 모든 메서드 허용
+    allow_methods=["*"], 
     allow_headers=["*"],
 )
 
@@ -94,3 +94,28 @@ def get_all_todos(db: Session = Depends(get_db)):
     # Todo 모델의 모든 데이터를 데이터베이스에서 조회
     all_todos = db.query(Todo).all()
     return all_todos
+
+
+@app.post("/todos", response_model=TodoResponse, summary="새로운 Todo 생성")
+def create_todo(todo_data: TodoCreate, db: Session = Depends(get_db)):
+    """
+    클라이언트가 보낸 데이터를 바탕으로 새로운 할 일을 데이터베이스에 저장해.
+    """
+    # 1. Pydantic 모델로 받은 데이터를 SQLAlchemy ORM 모델로 변환해.
+    # is_completed는 DB 모델에서 default=False로 설정했으므로 생략해도 자동으로 진행 중 상태로 저장돼!
+    new_todo = Todo(
+        content=todo_data.content,
+        date=todo_data.date
+    )
+    
+    # 2. 새로운 데이터를 세션에 추가해.
+    db.add(new_todo)
+    
+    # 3. 변경사항을 데이터베이스에 영구적으로 저장(Commit)해.
+    db.commit()
+    
+    # 4. 저장 후 데이터베이스에서 자동 생성된 고유 id 등의 최신 정보를 가져와서 객체를 업데이트해.
+    db.refresh(new_todo)
+    
+    # 5. 방금 생성된 새로운 Todo 데이터를 클라이언트에게 반환해.
+    return new_todo
