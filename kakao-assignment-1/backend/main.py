@@ -121,21 +121,37 @@ def update_todo(todo_id: int, todo_data: TodoUpdate, db: Session = Depends(get_d
     """
     고유 id(todo_id)를 가진 할 일을 찾아서, 전달받은 새로운 내용으로 덮어씌워.
     """
-    # 1. 데이터베이스에서 수정하려는 id를 가진 Todo를 찾아.
+    existing_todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    if not existing_todo:
+        raise HTTPException(status_code=404, detail="해당 할 일을 찾을 수 없어!")
+    
+    existing_todo.content = todo_data.content
+    existing_todo.is_completed = todo_data.is_completed
+    existing_todo.date = todo_data.date
+    
+    db.commit()
+    db.refresh(existing_todo)
+    return existing_todo
+
+
+@app.delete("/todos/{todo_id}", summary="특정 Todo 삭제")
+def delete_todo(todo_id: int, db: Session = Depends(get_db)):
+    """
+    고유 id(todo_id)를 가진 할 일을 찾아서 데이터베이스에서 영구적으로 삭제해.
+    """
+    # 1. 데이터베이스에서 삭제하려는 id를 가진 Todo를 찾아.
     existing_todo = db.query(Todo).filter(Todo.id == todo_id).first()
     
     # 2. 만약 해당 id의 데이터가 존재하지 않으면, 404 에러를 반환해.
     if not existing_todo:
         raise HTTPException(status_code=404, detail="해당 할 일을 찾을 수 없어!")
     
-    # 3. 데이터를 성공적으로 찾았다면, 클라이언트가 보낸 새 데이터로 기존 값을 변경해.
-    existing_todo.content = todo_data.content
-    existing_todo.is_completed = todo_data.is_completed
-    existing_todo.date = todo_data.date
+    # 3. 데이터를 성공적으로 찾았다면, 데이터베이스에서 삭제(Delete)해.
+    db.delete(existing_todo)
     
-    # 4. 변경된 사항을 데이터베이스에 영구적으로 저장(Commit)해.
+    # 4. 삭제된 상태를 데이터베이스에 영구적으로 반영(Commit)해.
     db.commit()
-    db.refresh(existing_todo)
     
-    # 5. 수정이 완료된 최신 데이터를 클라이언트에게 반환해.
-    return existing_todo
+    # 5. 프론트엔드에게 성공적으로 삭제되었다는 메시지를 반환해.
+    return {"message": "할 일이 성공적으로 삭제되었어!"}
