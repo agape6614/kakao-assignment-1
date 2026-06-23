@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// @ 치트키 경로 적용
 import { updateTodoAction, deleteTodoAction } from '@/app/todos/actions';
 
 interface TodoItem {
@@ -50,6 +49,8 @@ export default function EditTodoForm({ initialData }: { initialData: TodoItem })
 
     try {
       await deleteTodoAction(initialData.id);
+      // 💡 삭제 연동이 에러 없이 끝나면 클라이언트가 직접 이동해!
+      router.push('/todos');
     } catch (error) {
       console.error(error);
       alert('삭제 중 문제가 발생했어.');

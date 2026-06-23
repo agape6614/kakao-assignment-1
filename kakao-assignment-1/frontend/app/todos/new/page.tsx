@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // 💡 라우터 훅 추가
 import Link from 'next/link';
-// @ 치트키 경로 적용
 import { createTodoAction } from '@/app/todos/actions'; 
 
 export default function NewTodoPage() {
+  const router = useRouter(); // 💡 라우터 활성화
+  
   const [content, setContent] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -24,6 +26,8 @@ export default function NewTodoPage() {
 
     try {
       await createTodoAction(content, date);
+      // 💡 서버 연동이 에러 없이 끝나면 클라이언트가 직접 이동해!
+      router.push('/todos');
     } catch (error) {
       console.error(error);
       setErrorMessage('저장 중 문제가 발생했어. 다시 시도해 줘.');
