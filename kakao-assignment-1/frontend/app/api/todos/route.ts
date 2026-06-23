@@ -1,13 +1,12 @@
-// app/api/todos/route.ts
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = 'http://localhost:8000/todos';
+// 환경변수 적용: 백엔드 URL
+const BACKEND_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/todos`;
 
 export async function GET() {
   try {
-    // Next.js 서버가 대신 FastAPI 백엔드로 데이터를 요청해.
     const response = await fetch(BACKEND_URL, {
-      cache: 'no-store', // 항상 최신 데이터를 가져오도록 캐시 비활성화
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -15,8 +14,6 @@ export async function GET() {
     }
 
     const data = await response.json();
-    
-    // 프론트엔드에게 성공적으로 데이터를 전달해.
     return NextResponse.json(data);
   } catch (error) {
     console.error('API Route GET 에러:', error);
